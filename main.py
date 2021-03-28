@@ -1,13 +1,34 @@
 import sys
+import logging
+import argparse
 from PyQt5 import QtCore, QtWidgets
 import bos_crime_vis_tool as vis_tool
 
-def main():
-    app = QtWidgets.QApplication(['Boston Crime Report Map'])
-    window = vis_tool.gui.MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+def main(args):
+    if args.logger_level == 'DEBUG':
+        logging_level=logging.DEBUG
+    elif args.logger_level == 'INFO':
+        logging_level=logging.INFO
+    elif args.logger_level == 'WARN':
+        logging_level=logging.WARN
+    elif args.logger_level == 'ERROR':
+        logging_level=logging.ERROR
+
+    logging.basicConfig(format='[%(levelname)s]%(asctime)s %(message)s', 
+        datefmt='%I:%M:%S', 
+        level=logging_level)
+    df = vis_tool.utils.import_data()
+    app = QtWidgets.QApplication([])
+    view = vis_tool.gui.bosCrimeMapUI(df=df)
+    view.show()
+    control = vis_tool.control.bosCrimeMapCtrl(view, df)
+    sys.exit(app.exec())
     
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--logger_level', dest='logger_level',
+                        help='logger level', default='INFO',
+                        choices=['DEBUG','INFO','WARN','ERROR'])
+    args = parser.parse_args()
+    main(args)

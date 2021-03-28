@@ -3,6 +3,7 @@ import pathlib
 import json
 import pandas as pd
 import numpy as np
+import logging
 
 
 def import_data():
@@ -26,19 +27,24 @@ def import_data():
     return df
     
 
-def get_location (df, header, keys):
+def get_location (df, filters):
     lat = np.array([])
     lon = np.array([])
-    for key in keys:
-        df = df[df[header] == key]
-        lat = np.append(lat, df['Lat'].to_numpy())
-        lon = np.append(lon, df['Long'].to_numpy())
+    for header, keys in filters.items():
+        for key in keys:
+            df = df[df[header] == key]
+            lat = np.append(lat, df['Lat'].to_numpy())
+            lon = np.append(lon, df['Long'].to_numpy())
+    logging.debug('lat lenth: {}'.format(lat.shape[0]))
+    logging.debug('lon lenth: {}'.format(lon.shape[0]))
     return lat, lon
+
 
 def get_map_png():
     current_dir = pathlib.Path(__file__)
     data_dir = current_dir.parents[1] / 'data'
     return data_dir / 'map.png'
+
 
 def get_map_spec():
     current_dir = pathlib.Path(__file__)
@@ -49,8 +55,6 @@ def get_map_spec():
             map_specs['min_lat'], map_specs['max_lat']]
     return extent
     
-
-
 
 def test(df):
     print(get_location(df, 'INCIDENT_NUMBER',['I182080058']))
