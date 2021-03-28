@@ -1,17 +1,19 @@
 import os
+import pathlib
+import json
 import pandas as pd
 import numpy as np
 
 
 def import_data():
     # check dataset
-    current_dir = os.path.realpath(__file__)
-    parent_dir = os.path.dirname(os.path.dirname(current_dir))
-    data_dir = os.path.join(parent_dir, 'data', 'crime.csv')
-    if not os.path.exists(data_dir):
+    current_dir = pathlib.Path(__file__)
+    data_dir = current_dir.parents[1] / 'data'
+    data_path=  data_dir / 'crime.csv'
+    if not data_path.exists():
         raise FileNotFoundError('Dataset not found')
     # import data
-    df = pd.read_csv(data_dir, engine='python')
+    df = pd.read_csv(data_path, engine='python')
     # remove duplicates
     df = df.drop_duplicates(subset=['INCIDENT_NUMBER'])
     # remove useless data
@@ -32,6 +34,21 @@ def get_location (df, header, keys):
         lat = np.append(lat, df['Lat'].to_numpy())
         lon = np.append(lon, df['Long'].to_numpy())
     return lat, lon
+
+def get_map_png():
+    current_dir = pathlib.Path(__file__)
+    data_dir = current_dir.parents[1] / 'data'
+    return data_dir / 'map.png'
+
+def get_map_spec():
+    current_dir = pathlib.Path(__file__)
+    data_dir = current_dir.parents[1] / 'data'
+    with open(data_dir/'map.json') as f:
+        map_specs = json.load(f)
+    extent = [map_specs['min_lon'], map_specs['max_lon'],
+            map_specs['min_lat'], map_specs['max_lat']]
+    return extent
+    
 
 
 
