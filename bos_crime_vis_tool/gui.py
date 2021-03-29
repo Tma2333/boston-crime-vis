@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
 
 from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
@@ -37,7 +38,7 @@ class bosCrimeMapUI(QMainWindow):
         super().__init__(*args, **kwargs)
 
         self.setWindowTitle('Boston Crime Report Map')
-        self.setGeometry(100, 100, 900, 700)
+        self.setGeometry(100, 100, 950, 700)
         self.df = df
     
         self.generalLayout = QHBoxLayout()
@@ -76,14 +77,16 @@ class bosCrimeMapUI(QMainWindow):
 
     
     def update_location(self, lat, lon, color, size=None):
+        logging.debug('update plot')
         if size is None:
             num = lat.shape[0]
-            size = 1/(num/70)
+            size = 1/(num/300)
         self.canvas.axes.scatter(lon, lat, s=size, c=color)
         self.canvas.draw()
     
 
     def clear_location(self):
+        logging.debug('clear plot')
         self.canvas.axes.cla()
         self.canvas.axes.imshow(self.background, extent=utils.get_map_spec())
         self.canvas.draw()
@@ -95,15 +98,24 @@ class bosCrimeMapUI(QMainWindow):
         filterPanelLayout = QGridLayout()
         # Filter options add more here
         # 'option': (position), widgets
+        #==================================
+        # Add more options here 
+        #==================================
+        yearOptions = list(self.df['YEAR'].unique().astype('str'))
         filters = {
-            'year_label': 
-                {'pos':(0,0), 'widget':QLabel, 'text':'year'},
-            'year':
-                {'pos':(0,1), 'widget':QComboBox, 'options':['2015','2016']},
+            'year_label1': 
+                {'pos':(0,0), 'widget':QLabel, 'text':'From'},
+            'year_label2': 
+                {'pos':(0,2), 'widget':QLabel, 'text':'to'},
+            'year1':
+                {'pos':(0,1), 'widget':QComboBox, 'options': yearOptions},
+            'year2':
+                {'pos':(0,3), 'widget':QComboBox, 'options': yearOptions},
             'update':
-                {'pos':(1,0,1,2), 'widget':QPushButton},
+                {'pos':(1,0,1,4), 'widget':QPushButton},
         }
         self.filters = {}
+
         # build filter
         for filterName, param in filters.items():
             if param['widget'] is QLabel:

@@ -8,13 +8,16 @@ import logging
 
 def import_data():
     # check dataset
+    logging.info('Importing data...')
     current_dir = pathlib.Path(__file__)
     data_dir = current_dir.parents[1] / 'data'
     data_path=  data_dir / 'crime.csv'
     if not data_path.exists():
+        logging.error('Dataset not found, you can find information about access the dataset in /data')
         raise FileNotFoundError('Dataset not found')
     # import data
     df = pd.read_csv(data_path, engine='python')
+    logging.info('Data imported & Processing....')
     # remove duplicates
     df = df.drop_duplicates(subset=['INCIDENT_NUMBER'])
     # remove useless data
@@ -30,11 +33,12 @@ def import_data():
 def get_location (df, filters):
     lat = np.array([])
     lon = np.array([])
+    logging.debug(filters)
     for header, keys in filters.items():
         for key in keys:
-            df = df[df[header] == key]
-            lat = np.append(lat, df['Lat'].to_numpy())
-            lon = np.append(lon, df['Long'].to_numpy())
+            ds = df[df[header] == key]
+            lat = np.append(lat, ds['Lat'].to_numpy())
+            lon = np.append(lon, ds['Long'].to_numpy())
     logging.debug('lat lenth: {}'.format(lat.shape[0]))
     logging.debug('lon lenth: {}'.format(lon.shape[0]))
     return lat, lon
