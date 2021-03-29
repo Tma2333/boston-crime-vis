@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtWidgets
 import bos_crime_vis_tool as vis_tool
 
 def main(args):
+    # logging setup
     if args.logger_level == 'DEBUG':
         logging_level=logging.DEBUG
     elif args.logger_level == 'INFO':
@@ -15,9 +16,11 @@ def main(args):
         logging_level=logging.ERROR
 
     logging.basicConfig(format='[%(levelname)s]%(asctime)s %(message)s', 
-        datefmt='%I:%M:%S', 
+        datefmt='%H:%M:%S', 
         level=logging_level)
+    # import data
     df = vis_tool.utils.import_data()
+    # setup qt application
     app = QtWidgets.QApplication([])
     view = vis_tool.gui.bosCrimeMapUI(df=df)
     view.show()
