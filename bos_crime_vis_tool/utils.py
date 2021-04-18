@@ -33,14 +33,25 @@ def import_data():
 def get_location (df, filters):
     lat = np.array([])
     lon = np.array([])
-    logging.debug(filters)
-    for header, keys in filters.items():
-        for key in keys:
-            ds = df[df[header] == key]
-            lat = np.append(lat, ds['Lat'].to_numpy())
-            lon = np.append(lon, ds['Long'].to_numpy())
-    logging.debug('lat lenth: {}'.format(lat.shape[0]))
-    logging.debug('lon lenth: {}'.format(lon.shape[0]))
+    try:
+        logging.debug(filters)
+        header_ds = pd.DataFrame(df)
+        for header, keys in filters.items():
+            if keys == 'all':
+                continue
+            ds = pd.DataFrame()
+            for key in keys:
+                temp = header_ds[header_ds[header] == key]
+                ds=pd.concat([ds,temp])
+            ds = ds.dropna(subset=['Lat', 'Long'])
+            header_ds = pd.DataFrame(ds)
+        lat = np.append(lat, header_ds['Lat'].to_numpy())
+        lon = np.append(lon, header_ds['Long'].to_numpy())
+        logging.debug('lat lenth: {}'.format(lat.shape[0]))
+        logging.debug('lon lenth: {}'.format(lon.shape[0]))
+    except Exception as e:
+        logging.fatal(e)
+        logging.fatal('shit hits the fan')
     return lat, lon
 
 
