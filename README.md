@@ -12,3 +12,6 @@ See instruction of how to download dataset [here](https://github.com/Tma2333/bos
 ```python3 main.py```
 
 You can also use `-l` to change logger output level.
+
+## TODO
+- Improve performance
